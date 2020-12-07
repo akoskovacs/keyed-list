@@ -1,12 +1,12 @@
 export type KeyValueType = string;
 
-export interface IKeyedList<T> {
-    keyList: string[];
-    elements: { [id: string]: T };
-}
+export type ElementWithKey<K> = Record<K & KeyValueType, KeyValueType>;
+export type ElementWithId = ElementWithKey<'id'>;
+export type ElementsWithId<T extends ElementWithId> = { [id: string]: T; };
 
-export interface ElementWithId {
-  id: string;
+export interface IdKeyedList<T extends ElementWithId> {
+    keys: Array<KeyValueType>;
+    elements: ElementsWithId<T>;
 }
 
 /**
@@ -14,32 +14,197 @@ export interface ElementWithId {
  * have unique "id" properties
  * 
  * ```typescript
- * const persons = [ { id: '1', name: 'Peter' }, { id: '2', name: 'John' }, { id: '3', name: 'Steve' } ];
- * const list = fromArray(persons);
+ * const persons = [
+ *   { id: '1', name: 'Peter' },
+ *   { id: '2', name: 'John'  },
+ *   { id: '3', name: 'Steve' }
+ * ];
+ * const list = keyedList.fromArray(persons);
  * 
- * const john = getById(list, '2');
+ * const john = keyedList.getById(list, '2');
  * ```
  */
-export const fromArray = <T extends ElementWithId>(array: T[]) => {
+export const fromArray = <T extends ElementWithId>(array: T[] = []): IdKeyedList<T> => {
     const keys = array.map(x => x.id);
     return {
-        keyList: keys,
+        keys: keys,
         elements: array.reduce((prev, curr) =>
             ({ ...prev, [curr.id]: { ...curr } })
             , {})
     };
 };
 
-export const toArray = <T extends ElementWithId>(list: IKeyedList<T>): T[] =>
-    list.keyList.map(k => list.elements[k]) as T[];
+/**
+ * Convert the keyed list to an array.
+ * 
+ * ```typescript
+ * const exampleFirstElem = (list: IdKeyedList<Person>) => {
+ *      const asArray = keyedList.toArray(persons);
+ *      return asArray[0].length > 0 ? asArray[0] : undefined;
+ * }
+ * ```
+ */
+export const toArray = <T extends ElementWithId>(list: IdKeyedList<T>): T[] =>
+    list.keys.map(k => ({ ...list.elements[k] }));
 
-export const getById = <T extends ElementWithId>(list: IKeyedList<T>, id: string): T | undefined => {
-    return { ...list.elements[id] };
+/**
+ * Gets an element by the key, which is the id property of the object here.
+ * 
+ * ```typescript
+ * const persons = [
+ *   { id: '100', name: 'Peter' },
+ *   { id: '211', name: 'John'  },
+ *   { id: '331', name: 'Steve' }
+ * ];
+ * const list = keyedList.fromArray(persons);
+ * 
+ * const steve = keyedList.getById(list, '331');
+ * ```
+ */
+export const getById = <T extends ElementWithId>(list: IdKeyedList<T>, id: string): T | undefined => list.elements[id];
+
+/**
+ * Get all the ids of the list.
+ * 
+ * ```typescript
+ * const persons = [
+ *   { id: '100', name: 'Peter' },
+ *   { id: '211', name: 'John'  },
+ *   { id: '331', name: 'Steve' }
+ * ];
+ * const list = keyedList.fromArray(persons);
+ * 
+ * const ids = keyedList.getIds(list);
+ * // ids == [ '100', '211', '331' ]
+ * 
+ * ```
+ */
+export const getIds = <T extends ElementWithId>(list: IdKeyedList<T>): string[] =>
+    ([ ...list.keys ]);
+
+/**
+ * Gets multiple elements by their ids.
+ * 
+ * ```typescript
+ * const persons = [
+ *   { id: '100', name: 'Peter' },
+ *   { id: '211', name: 'John'  },
+ *   { id: '331', name: 'Steve' }
+ * ];
+ * const list = keyedList.fromArray(persons);
+ * 
+ * const newList = keyedList.getByIds(list, [ '100', '331', '500' ]); // 500 is not found not in the list [
+ * //  { id: '100', name: 'Peter' },
+ * //  { id: '331', name: 'Steve' }
+ * //];
+ * 
+ * ```
+ */
+export const getByIds = <T extends ElementWithId>(list: IdKeyedList<T>, ids: Array<string>): T[] => {
+    const newElements: T[] = [];
+    ids.map(id => {
+        const x = list.elements[id];
+        if (x) {
+            newElements.push({ ...x });
+        }
+    });
+    return newElements;
+};
+
+/**
+ * Update element.
+ * 
+ * ```typescript
+ * const persons = [
+ *   { id: '100', name: 'Peter' },
+ *   { id: '211', name: 'John'  },
+ *   { id: '331', name: 'Steve' }
+ * ];
+ * const list = keyedList.fromArray(persons);
+ * 
+ * const newList = keyedList.update(list, '100', {
+ *  name: 'Tom'
+ * }); // [
+ * //  { id: '100', name: 'Tom' },
+ * //  { id: '211', name: 'John' },
+ * //  { id: '331', name: 'Steve' }
+ * //];
+ * 
+ * ```
+ */
+export const update = <T extends ElementWithId>(list: IdKeyedList<T>, elemProps: Partial<T> & ElementWithId | T): IdKeyedList<T> => ({
+    ...list,
+    elements: {
+        ...list.elements,
+        [elemProps.id]: Object.assign({}, list.elements[elemProps.id], elemProps)
+    }
+});
+
+
+/**
+ * Returns the first element of the list.
+ * 
+ * ```typescript
+ * const persons = [
+ *   { id: '100', name: 'Peter' },
+ *   { id: '211', name: 'John'  },
+ *   { id: '331', name: 'Steve' }
+ * ];
+ * const list = keyedList.fromArray(persons);
+ * 
+ * const peter = keyedList.getFirst(list);
+ * ```
+ */
+export const getFirst = <T extends ElementWithId>(list: IdKeyedList<T>): T | undefined => {
+    return { ...list.elements[list.keys[0]] };
 }
 
-export const append = <T extends ElementWithId>(list: IKeyedList<T>,  x: T): IKeyedList<T> => {
+/**
+ * Returns the last element of the list.
+ * 
+ * ```typescript
+ * const persons = [
+ *   { id: '100', name: 'Peter' },
+ *   { id: '211', name: 'John'  },
+ *   { id: '331', name: 'Steve' }
+ * ];
+ * const list = keyedList.fromArray(persons);
+ * 
+ * const steve = keyedList.getLast(list);
+ * ```
+ */
+export const getLast = <T extends ElementWithId>(list: IdKeyedList<T>): T | undefined => {
+    return { ...list.elements[list.keys[list.keys.length - 1]] };
+}
+
+/**
+ * Adds a new item to the end of the list.
+ * 
+ * ```typescript
+ * const persons = [
+ *   { id: '100', name: 'Peter' },
+ *   { id: '211', name: 'John'  },
+ *   { id: '331', name: 'Steve' }
+ * ];
+ * const list = keyedList.fromArray(persons);
+ * 
+ * const newList = keyedList.append(list, {
+ *  id: '411',
+ *  name: 'Emily'
+ * });
+ * 
+ * const asArray = keyedList.toArray(newList); // = [
+ * //  { id: '100', name: 'Peter' },
+ * //  { id: '211', name: 'John'  },
+ * //  { id: '331', name: 'Steve' },
+ * //  { id: '411', name: 'Emily' }
+ * // ]; 
+ * ```
+ * 
+ */
+export const append = <T extends ElementWithId>(list: IdKeyedList<T>,  x: T): IdKeyedList<T> => {
     return {
-        keyList: [ ...list.keyList, x.id ],
+        keys: [ ...list.keys, x.id ],
         elements: {
             ...list.elements,
             [x.id]: x
@@ -47,9 +212,34 @@ export const append = <T extends ElementWithId>(list: IKeyedList<T>,  x: T): IKe
     };
 }
 
-export const insert = <T extends ElementWithId>(list: IKeyedList<T>, x: T): IKeyedList<T>  => {
+/**
+ * Adds a new item to the beginning of the list.
+ * 
+ * ```typescript
+ * const persons = [
+ *   { id: '100', name: 'Peter' },
+ *   { id: '211', name: 'John'  },
+ *   { id: '331', name: 'Steve' }
+ * ];
+ * const list = keyedList.fromArray(persons);
+ * 
+ * const newList = keyedList.append(list, {
+ *  id: '411',
+ *  name: 'Emily'
+ * });
+ * 
+ * const asArray = keyedList.toArray(newList); // = [
+ * //  { id: '411', name: 'Emily' },
+ * //  { id: '100', name: 'Peter' },
+ * //  { id: '211', name: 'John'  },
+ * //  { id: '331', name: 'Steve' }
+ * // ]; 
+ * ```
+ * 
+ */
+export const insert = <T extends ElementWithId>(list: IdKeyedList<T>, x: T): IdKeyedList<T> => {
     return {
-        keyList: [ x.id, ...list.keyList ],
+        keys: [ x.id, ...list.keys ],
         elements: {
             ...list.elements,
             [x.id]: x
@@ -57,9 +247,35 @@ export const insert = <T extends ElementWithId>(list: IKeyedList<T>, x: T): IKey
     };
 }
 
-export const removeById = <T extends ElementWithId>(list: IKeyedList<T>, id: string): IKeyedList<T>  => {
+/**
+ * Get element count of the list.
+ */
+export const getCount = <T extends ElementWithId>(list: IdKeyedList<T>, x: T): number =>
+    list.keys.length;
+ 
+
+/**
+ * Removes the specified element.
+ * 
+ * ```typescript
+ * const persons = [
+ *   { id: '100', name: 'Peter' },
+ *   { id: '211', name: 'John'  },
+ *   { id: '331', name: 'Steve' }
+ * ];
+ * const list = keyedList.fromArray(persons);
+ * 
+ * const newList = keyedList.removeById(persons, '211')
+ * 
+ * const asArray = keyedList.toArray(newList); // = [
+ * //  { id: '100', name: 'Peter' },
+ * //  { id: '331', name: 'Steve' }
+ * // ]; 
+ * ```
+ */
+export const removeById = <T extends ElementWithId>(list: IdKeyedList<T>, id: string): IdKeyedList<T>  => {
     return {
-        keyList: list.keyList.filter(xid => xid !== id),
+        keys: list.keys.filter(xid => xid !== id),
         elements: Object
           .values(list.elements)
           .reduce((prev, curr) => {
@@ -70,18 +286,86 @@ export const removeById = <T extends ElementWithId>(list: IKeyedList<T>, id: str
     };
 }
 
-export const remove = <T extends ElementWithId>(list: IKeyedList<T>, x: T): IKeyedList<T> => 
+/**
+ * Removes the specified element.
+ * 
+ * ```typescript
+ * const persons = [
+ *   { id: '100', name: 'Peter' },
+ *   { id: '211', name: 'John'  },
+ *   { id: '331', name: 'Steve' }
+ * ];
+ * const list = keyedList.fromArray(persons);
+ * 
+ * const newList = keyedList.remove(persons, '211')
+ * 
+ * const asArray = keyedList.toArray(newList); // = [
+ * //  { id: '100', name: 'Peter' },
+ * //  { id: '331', name: 'Steve' }
+ * // ]; 
+ * ```
+ */
+export const remove = <T extends ElementWithId>(list: IdKeyedList<T>, x: T): IdKeyedList<T> => 
     removeById(list, x.id);
 
-export const map = <T extends ElementWithId>(list: IKeyedList<T>
-      , mapper: (x: T, index: number, xs: IKeyedList<T>) => T): T[]  => {
+/**
+ * Map through the list.
+ * 
+ * ```typescript
+ * const persons = [
+ *   { id: '100', name: 'Peter' },
+ *   { id: '211', name: 'John'  },
+ *   { id: '331', name: 'Steve' }
+ * ];
+ * const list = keyedList.fromArray(persons);
+ * 
+ * const nameArray = keyedList.map(persons, (person, index) => {
+ *  console.log(`${ index + 1 }. - ${ person.name }`)
+ *  return person.name;
+ * });
+ * ```
+ */
+export const map = <T extends ElementWithId>(list: IdKeyedList<T>
+      , mapper: (x: T, index: number, xs: IdKeyedList<T>) => T) => {
     var i = 0;
-    return list.keyList.map(key => {
-        const elem = list.elements[key] as T;
+    return list.keys.map(key => {
+        const elem = { ...list.elements[key] };
         return mapper(elem, i++, list)
     });
 };
 
-export const mapToList = <T extends ElementWithId>(list: IKeyedList<T>
-      , mapper: (x: T, index: number, xs: IKeyedList<T>) => T): IKeyedList<T> =>
-  fromArray<T>(map<T>(list, mapper));
+/**
+ * Filter through the list.
+ * 
+ * ```typescript
+ * const persons = [
+ *   { id: '100', name: 'Peter' },
+ *   { id: '211', name: 'John'  },
+ *   { id: '331', name: 'Steve' }
+ * ];
+ * const list = keyedList.fromArray(persons);
+ * 
+ * const nameArray = keyedList.filter(persons, (person, index) => {
+ *  console.log(`${ index + 1 }. - ${ person.name }`)
+ *  return person.name;
+ * });
+ * ```
+ */
+export const filter = <T extends ElementWithId>(list: IdKeyedList<T>, filterFunction: (x: T) => boolean) => {
+    const keys = list.keys.filter(id => {
+        const elem = list.elements[id];
+        return filterFunction(elem);
+    });
+    return getByIds(list, keys);
+};
+
+export const sort = <T extends ElementWithId>(list: IdKeyedList<T>, compareWith: (lval: T, rval: T) => number): IdKeyedList<T> => {
+    const sortedElems = toArray(list).sort(compareWith);
+    return {
+        keys: sortedElems.map(x => x.id),
+        elements: sortedElems.reduce((prev, elem) => {
+            prev[elem.id] = elem;
+            return prev;
+        }, {} as ElementsWithId<T>)
+    };
+}
