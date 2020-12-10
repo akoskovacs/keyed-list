@@ -178,6 +178,26 @@ export const getLast = <T extends ElementWithId>(list: IdKeyedList<T>): T | unde
 }
 
 /**
+ * Returns the element of the given index.
+ * The indicies are starting from 0, just like for arrays.
+ * 
+ * ```typescript
+ * const persons = [
+ *   { id: '100', name: 'Peter' },
+ *   { id: '211', name: 'John'  },
+ *   { id: '331', name: 'Steve' }
+ * ];
+ * const list = keyedList.fromArray(persons);
+ * 
+ * const john = keyedList.getByIndex(list, 2);
+ * ```
+ */
+export const getByIndex = <T extends ElementWithId>(list: IdKeyedList<T>, index: number): T | undefined => {
+    const idByIndex = list.keys[index];
+    return idByIndex ? list.elements[idByIndex] : undefined;
+}
+
+/**
  * Adds a new item to the end of the list.
  * 
  * ```typescript
@@ -250,7 +270,7 @@ export const insert = <T extends ElementWithId>(list: IdKeyedList<T>, x: T): IdK
 /**
  * Get element count of the list.
  */
-export const getCount = <T extends ElementWithId>(list: IdKeyedList<T>, x: T): number =>
+export const getCount = <T extends ElementWithId>(list: IdKeyedList<T>): number =>
     list.keys.length;
  
 
@@ -274,8 +294,9 @@ export const getCount = <T extends ElementWithId>(list: IdKeyedList<T>, x: T): n
  * ```
  */
 export const removeById = <T extends ElementWithId>(list: IdKeyedList<T>, id: string): IdKeyedList<T>  => {
+    const newKeyes = list.keys.filter(xid => xid !== id)
     return {
-        keys: list.keys.filter(xid => xid !== id),
+        keys: newKeyes,
         elements: Object
           .values(list.elements)
           .reduce((prev, curr) => {
@@ -359,6 +380,21 @@ export const filter = <T extends ElementWithId>(list: IdKeyedList<T>, filterFunc
     return getByIds(list, keys);
 };
 
+/**
+ * Sorts a list.
+ * 
+ * ```typescript
+ * const persons = [
+ *   { id: '100', name: 'Peter' },
+ *   { id: '211', name: 'John'  },
+ *   { id: '331', name: 'Steve' }
+ * ];
+ * const list = keyedList.fromArray(persons);
+ * 
+ * // Sort by age
+ * const byAge = keyedList.sort(persons, (left, right) => left.age - right.age);
+ * ```
+ */
 export const sort = <T extends ElementWithId>(list: IdKeyedList<T>, compareWith: (lval: T, rval: T) => number): IdKeyedList<T> => {
     const sortedElems = toArray(list).sort(compareWith);
     return {
