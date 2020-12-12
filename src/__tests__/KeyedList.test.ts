@@ -1,5 +1,4 @@
-import { keyedList } from '../index';
-import { getById, getCount, getFirst, getLast, IdKeyedList } from '../KeyedList';
+import keyedList from '../index';
 
 interface SomeData {
   id: string;
@@ -21,7 +20,7 @@ const assertJohnElement = (first?: SomeData) => {
   expect(first?.age).toBe(51);
 };
 
-const assertJohn = (list: IdKeyedList<SomeData>) => {
+const assertJohn = (list: keyedList.IdKeyedList<SomeData>) => {
   const first = keyedList.getById(list, '123');
   assertJohnElement(first);
 };
@@ -32,7 +31,7 @@ const assertAlfredElement = (second?: SomeData) => {
   expect(second?.age).toBe(12);
 };
 
-const assertAlfred = (list: IdKeyedList<SomeData>) => {
+const assertAlfred = (list: keyedList.IdKeyedList<SomeData>) => {
   const second = keyedList.getById(list, '111');
   assertAlfredElement(second);
 };
@@ -43,12 +42,12 @@ const assertJonElement = (last?: SomeData) => {
   expect(last?.age).toBe(31);
 };
 
-const assertJon = (list: IdKeyedList<SomeData>) => {
+const assertJon = (list: keyedList.IdKeyedList<SomeData>) => {
   const last = keyedList.getById(list, '98');
   assertJonElement(last);
 };
 
-const assertListElements = (list: IdKeyedList<SomeData>) => {
+const assertListElements = (list: keyedList.IdKeyedList<SomeData>) => {
   assertJon(list);
   assertJohn(list);
   assertAlfred(list);
@@ -170,7 +169,7 @@ test('shows that the first element of the list can be retrived', () => {
   const someData = generateData();
   const list = keyedList.fromArray(someData);
 
-  const first = getFirst(list);
+  const first = keyedList.getFirst(list);
   assertJohnElement(first);
 
   assertAlfred(list);
@@ -182,7 +181,7 @@ test('shows that the last element of the list can be retrived', () => {
   const someData = generateData();
   const list = keyedList.fromArray(someData);
 
-  const last = getLast(list);
+  const last = keyedList.getLast(list);
   assertJonElement(last);
 
   assertJohn(list);
@@ -276,9 +275,9 @@ test('shows that counting works on empty, single and multiple element lists', ()
 
   const list = keyedList.fromArray(someData);
 
-  expect(getCount(empty)).toBe(0);
-  expect(getCount(single)).toBe(1);
-  expect(getCount(list)).toBe(3);
+  expect(keyedList.getCount(empty)).toBe(0);
+  expect(keyedList.getCount(single)).toBe(1);
+  expect(keyedList.getCount(list)).toBe(3);
   assertData(someData);
 });
 
@@ -291,16 +290,16 @@ test('shows that removal of and element by its id works on empty and is immutabl
   const allRemoved = keyedList.removeById(
     keyedList.removeById(oneRemoved, '98'), '123');
 
-  expect(getCount(list)).toBe(3);
-  expect(getCount(oneRemoved)).toBe(2);
+  expect(keyedList.getCount(list)).toBe(3);
+  expect(keyedList.getCount(oneRemoved)).toBe(2);
   assertJohn(oneRemoved);
   assertJon(oneRemoved);
 
   expect(allRemoved).toBeDefined();
-  expect(getCount(allRemoved)).toBe(0);
-  expect(getById(allRemoved, '123')).not.toBeDefined();
-  expect(getById(allRemoved, '111')).not.toBeDefined();
-  expect(getById(allRemoved, '98')).not.toBeDefined();
+  expect(keyedList.getCount(allRemoved)).toBe(0);
+  expect(keyedList.getById(allRemoved, '123')).not.toBeDefined();
+  expect(keyedList.getById(allRemoved, '111')).not.toBeDefined();
+  expect(keyedList.getById(allRemoved, '98')).not.toBeDefined();
 
   assertData(someData);
 });
@@ -404,6 +403,27 @@ test('shows that an array can be mapped in order', () => {
 
   expect(gotData).toStrictEqual(someData);
   expect(gotData).toStrictEqual(returned);
+  expect(gotIndicies).toStrictEqual([0, 1, 2]);
+  expect(gotLists).toStrictEqual([c, c, c]);
+  assertData(someData);
+});
+
+test('shows that the ids be mapped in order', () => {
+  const someData = generateData();
+  const c = keyedList.fromArray(someData);
+
+  var gotIds: string[] = [];
+  var gotIndicies: number[] = [];
+  var gotLists: keyedList.IdKeyedList<SomeData>[] = [];
+  const ids = keyedList.mapIds<SomeData>(c, (x, i, l) => {
+    gotIds.push(x);
+    gotIndicies.push(i);
+    gotLists.push(l);
+    return x;
+  });
+
+  expect(gotIds).toStrictEqual(['123', '111', '98']);
+  expect(ids).toStrictEqual(['123', '111', '98']);
   expect(gotIndicies).toStrictEqual([0, 1, 2]);
   expect(gotLists).toStrictEqual([c, c, c]);
   assertData(someData);

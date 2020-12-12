@@ -62,17 +62,19 @@ After the API gave back the elements the library can start manipulating the data
 |-------------------|------------------------------------------------------|------------------------------------------------------------------------------------------|
 | ```fromArray```   | Create a list from an array                          | ```const list = keyedList.fromArray(posts);```                                           |
 | ```toArray```     | Converts the list back into an array                 | ```const newPosts = keyedList.toArray(list);```                                          |
-| ```getById```     | Retrieve the element by its id                       | ```const steve = keyedList.getById(list, '2222');```                                     |
 | ```getIds```      | Retrieve multiple elements by their ids              | ```const ids = keyedList.getIds(list);```                                                |
+| ```getById```     | Retrieve the element by its id                       | ```const steve = keyedList.getById(list, '2222');```                                     |
 | ```getByIds```    | Converts the list back into an array                 | ```const sp = keyedList.toArray(list, ['4242, '2222']);```                               |
-| ```update```      | Update properties of given list element              | ```const newList = keyedList.update(list, { id: '4242', votes: 1 });```                  |
 | ```getFirst```    | Gets the first element in the list                   | ```const first = keyedList.getFirst(list);```                                            |
 | ```getLast```     | Gets the last elemenet in the list                   | ```const last = keyedList.getLast(list);```                                              |
 | ```getByIndex```  | Gets the element by its index                        | ```const second = keyedList.getByIndex(list, 1);```                                      |
+| ```getCount```    | Get the length of the list                           | ```const count = keyedList.getCount(list);```                                            |
+| ```update```      | Update properties of given list element              | ```const newList = keyedList.update(list, { id: '4242', votes: 1 });```                  |
 | ```append```      | Adds a new element to the end the list               | ```const newList = keyedList.append(list, { id: '5200', author: 'Riley' /* ... */});```  |
 | ```insert```      | Insert a new element to the beginning of the list    | ```const newList = keyedList.insert(list, { id: '5200', author: 'Riley' /* ... */});```  |
 | ```removeById```  | Removes an element by its id                         | ```const newList = keyedList.removeById(list, '2222');```                                |
 | ```map```         | Iterates through the list elements                   | ```const nameArray = keyedList.map(list, p => p.author);```                              |
+| ```mapIds```      | Iterates through the `id`s of the list               | ```const ids = keyedList.mapIds(list, id => id);```                                      |
 | ```filter```      | Filters out elements which stasify a given condition | ```const nonZeroVotes = keyedList.filter(list, p => p.votes > 0);```                     |
 | ```sort```        | Sorts the array, by a given comparison function      | ```const sortedList = keyedList.sort(list, (left, right) => left.votes - right.votes);```|
 
@@ -132,18 +134,18 @@ const Posts = () => {
     }
   };
 
-  const ids = keyedList.getIds(posts);
   return (
     <>
       {
-        ids.map(id =>
-        <Post
-          id={ id }
-          key={ id }
-          editContent={ setPostContent }
-          getById={ id => keyedList.getById(posts, id) }
-          onVote={ id => voteOnPost }
-          onDelete={ doDelete } />)
+        keyedList.mapIds(id =>
+          <Post
+            id={ id }
+            key={ id }
+            editContent={ setPostContent }
+            getById={ id => keyedList.getById(posts, id) }
+            onVote={ id => voteOnPost }
+            onDelete={ doDelete } />
+        )
       }
     </>
   );
@@ -166,12 +168,15 @@ interface PostProps {
 export const Post = ({ id, getById, setContent, onDelete }: PostProps) => {
   const post = (id && getById) ? getById(id) : undefined;
 
-  return post && (
+  if (!post)
+    return undefined;
+
+  return (
     <div className="post">
       <p><em>Posted by { post.author }</em></p>
       {
         onVote &&
-          <button className="vote" onClick={ () => onVote(id) }>
+          <button className="vote" onClick={ () => onVote(id) } />
       }
       <p className="post-content">
         { post.content }
@@ -182,7 +187,7 @@ export const Post = ({ id, getById, setContent, onDelete }: PostProps) => {
       }
       {
         onDelete &&
-          <button className="delete" onClick={() => onDelete(id) }>
+          <button className="delete" onClick={ () => onDelete(id) } />
       }
     </div>
   );

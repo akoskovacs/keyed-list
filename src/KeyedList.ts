@@ -156,7 +156,7 @@ export const update = <T extends ElementWithId>(list: IdKeyedList<T>, elemProps:
  * ```
  */
 export const getFirst = <T extends ElementWithId>(list: IdKeyedList<T>): T | undefined => {
-    return { ...list.elements[list.keys[0]] };
+    return list.elements[list.keys[0]];
 }
 
 /**
@@ -174,7 +174,7 @@ export const getFirst = <T extends ElementWithId>(list: IdKeyedList<T>): T | und
  * ```
  */
 export const getLast = <T extends ElementWithId>(list: IdKeyedList<T>): T | undefined => {
-    return { ...list.elements[list.keys[list.keys.length - 1]] };
+    return list.elements[list.keys[list.keys.length - 1]];
 }
 
 /**
@@ -273,7 +273,6 @@ export const insert = <T extends ElementWithId>(list: IdKeyedList<T>, x: T): IdK
 export const getCount = <T extends ElementWithId>(list: IdKeyedList<T>): number =>
     list.keys.length;
  
-
 /**
  * Removes the specified element.
  * 
@@ -353,6 +352,28 @@ export const map = <T extends ElementWithId>(list: IdKeyedList<T>
         const elem = { ...list.elements[key] };
         return mapper(elem, i++, list)
     });
+};
+
+/**
+ * Map through the indices list.
+ * 
+ * ```typescript
+ * const persons = [
+ *   { id: '100', name: 'Peter' },
+ *   { id: '211', name: 'John'  },
+ *   { id: '331', name: 'Steve' }
+ * ];
+ * const list = keyedList.fromArray(persons);
+ * 
+ * const idArray = keyedList.mapIds(persons, (id, index) => {
+ *  console.log(`${ index + 1 }. - ${ id }`)
+ *  return id;
+ * });
+ * ```
+ */
+export const mapIds = <T extends ElementWithId>(list: IdKeyedList<T>
+      , mapper: (id: string, index: number, xs: IdKeyedList<T>) => string) => {
+    return list.keys.map((id, i) => mapper(id, i, list));
 };
 
 /**
