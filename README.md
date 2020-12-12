@@ -2,7 +2,7 @@
 
 Efficiently store and retreive list elements based on their `id` key. This approach has the same benefits as having both an array and a hash for the same list.
 
-With the array we can simply iterate through the elements or use them by their index. And with the hash, we can efficiently retrieve them, just by the `id`. Although, this implementation will only store the `id`s in the array, everything else is done by the hash. But, this mechanism is completely transparent, the user don't have to think about it.
+With the array we can simply iterate through the elements or use them by their index. And with the hash, we can efficiently retrieve them, just by the `id`. Although, this implementation will only store the `id`s in the array to conserve space. But, this mechanism is completely transparent, the user don't have to think about it.
 
 The immutability makes this library easy to use with React or other functional libraries and is also less error-prone. 
 
@@ -75,7 +75,6 @@ After the API gave back the elements the library can start manipulating the data
 | ```map```         | Iterates through the list elements                   | ```const nameArray = keyedList.map(list, p => p.author);```                              |
 | ```filter```      | Filters out elements which stasify a given condition | ```const nonZeroVotes = keyedList.filter(list, p => p.votes > 0);```                     |
 | ```sort```        | Sorts the array, by a given comparison function      | ```const sortedList = keyedList.sort(list, (left, right) => left.votes - right.votes);```|
-|-------------------|------------------------------------------------------|------------------------------------------------------------------------------------------|
 
 ## A more complete example with React
 
@@ -170,15 +169,21 @@ export const Post = ({ id, getById, setContent, onDelete }: PostProps) => {
   return post && (
     <div className="post">
       <p><em>Posted by { post.author }</em></p>
-      { onVote &&
-        <button className="vote" onClick={() => onVote(id) }> }
+      {
+        onVote &&
+          <button className="vote" onClick={ () => onVote(id) }>
+      }
       <p className="post-content">
         { post.content }
       </p>
-      { onEditContent &&
-        <> }
-      { onDelete &&
-        <button className="delete" onClick={() => onDelete(id) }> }
+      {
+        onEditContent &&
+        /* create and editor for the content and call onEditContent when done */
+      }
+      {
+        onDelete &&
+          <button className="delete" onClick={() => onDelete(id) }>
+      }
     </div>
   );
 };
