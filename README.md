@@ -10,11 +10,11 @@ The immutability makes this library easy to use with React or other functional l
 
 The preferred way is to add it to the project locally as a dependency:
 ```sh
-npm install --save keyed-list
+npm install --save @akoskovacs/keyed-list
 ```
 Or via `yarn`:
 ```sh
-yarn add keyed-list
+yarn add @akoskovacs/keyed-list
 ```
 
 ## Usage

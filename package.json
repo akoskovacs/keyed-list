@@ -1,5 +1,5 @@
 {
-  "name": "keyed-list",
+  "name": "@akoskovacs/keyed-list",
   "version": "1.0.0",
   "description": "Immutable keyed list collection",
   "homepage": "https://github.com/akoskovacs/keyed-list#readme",
