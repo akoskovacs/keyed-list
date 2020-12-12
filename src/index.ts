@@ -1,1 +1,2 @@
-export * as keyedList from './KeyedList';
+import * as keyedList from './KeyedList';
+export default keyedList;
