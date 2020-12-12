@@ -1,10 +1,12 @@
 {
   "name": "@akoskovacs/keyed-list",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Immutable keyed list collection",
   "homepage": "https://github.com/akoskovacs/keyed-list#readme",
   "repository": "github:akoskovacs/keyed-list",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "types": "lib/KeyedList.d.ts",
+  "prepublish": "tsc",
   "files": [
     "lib/**/*"
   ],

@@ -22,7 +22,7 @@ yarn add @akoskovacs/keyed-list
 The list element must include a unqiue `id` property. The `id` can be a GUID given by an API. It then can be used to efficiently address the elements. Take this example:
 
 ```ts
-import * as keyedList from 'keyedList';
+import * as keyedList from '@akoskovacs/keyed-list';
 
 interface PostItem {
   id: string;
