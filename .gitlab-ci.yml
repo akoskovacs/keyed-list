@@ -7,7 +7,7 @@ stages:
 build:
   stage: build
   script:
-    - npm install
+    - npm install --also=dev
     - npm run build
   cache:
     paths:
@@ -17,7 +17,6 @@ build:
     when: on_success
     paths:
       - lib/
-
 
 test:
   stage: test
