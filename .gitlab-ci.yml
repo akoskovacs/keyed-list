@@ -14,7 +14,7 @@ npm:
 
 
 build:
-  stage: build
+  stage: npm
   dependencies:
     - npm
   script:
