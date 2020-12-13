@@ -1,0 +1,34 @@
+image: node:12.19.0
+
+stages:
+  - npm
+  - test
+
+npm:
+  stage: npm
+  script:
+    - npm install
+  cache:
+    paths:
+      - node_modules/
+
+
+build:
+  stage: build
+  dependencies:
+    - npm
+  script:
+    - npm run build
+  artifacts:
+    expire_in: 1 days
+    when: on_success
+    paths:
+      - lib/
+
+test:
+  stage: test
+  dependencies:
+    - build
+  script:
+    - npm run test
+
