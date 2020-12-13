@@ -12,10 +12,12 @@ build:
   cache:
     paths:
       - node_modules/
+      - lib/
   artifacts:
     expire_in: 1 days
     when: on_success
     paths:
+      - node_modules/
       - lib/
 
 test:
