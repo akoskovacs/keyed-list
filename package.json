@@ -12,9 +12,9 @@
   ],
   "scripts": {
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
-    "lint": "eslint",
-    "test": "jest --config jestconfig.json",
-    "build": "tsc"
+    "lint": "npx eslint",
+    "test": "npx jest --config jestconfig.json",
+    "build": "npx tsc"
   },
   "keywords": [
     "list",
