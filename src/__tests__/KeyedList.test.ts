@@ -466,3 +466,29 @@ test('shows that elements can be sorted immutably, by a custom sort function', (
   assertListElements(list);
   assertData(someData);
 });
+
+test('shows that the keys can be gathered by their index', () => {
+  const someData = generateData();
+
+  const list = keyedList.fromArray(someData);
+
+  const firstId = keyedList.getIdByIndex(list, 0);
+  const secondId = keyedList.getIdByIndex(list, 1);
+  const thirdId = keyedList.getIdByIndex(list, 2);
+
+  const nonExisting0 = keyedList.getIdByIndex(list, 3);
+  const nonExisting1 = keyedList.getIdByIndex(list, -1);
+
+  expect(firstId).toBeDefined();
+  expect(secondId).toBeDefined();
+  expect(thirdId).toBeDefined();
+
+  expect(nonExisting0).not.toBeDefined();
+  expect(nonExisting1).not.toBeDefined();
+
+  expect(firstId).toBe(someData[0].id);
+  expect(secondId).toBe(someData[1].id);
+  expect(thirdId).toBe(someData[2].id);
+
+  assertData(someData);
+})

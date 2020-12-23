@@ -112,6 +112,15 @@ export const getByIds = <T extends ElementWithId>(list: IdKeyedList<T>, ids: Arr
 };
 
 /**
+ * Gets the id at a given index.
+*/
+export const getIdByIndex =  <T extends ElementWithId>(list: IdKeyedList<T>, index: number): string | undefined => {
+    if (index >= 0)
+        return list.keys[index];
+    return undefined;
+};
+
+/**
  * Update element.
  * 
  * ```typescript

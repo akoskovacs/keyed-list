@@ -64,7 +64,8 @@ After the API gave back the elements the library can start manipulating the data
 | ```toArray```     | Converts the list back into an array                 | ```const newPosts = keyedList.toArray(list);```                                          |
 | ```getIds```      | Retrieve multiple elements by their ids              | ```const ids = keyedList.getIds(list);```                                                |
 | ```getById```     | Retrieve the element by its id                       | ```const steve = keyedList.getById(list, '2222');```                                     |
-| ```getByIds```    | Converts the list back into an array                 | ```const sp = keyedList.getByIds(list, ['4242, '2222']);```                               |
+| ```getByIds```    | Converts the list back into an array                 | ```const sp = keyedList.getByIds(list, ['4242, '2222']);```                              |
+| ```getIdByIndex```| Retrieve the id by the element's numeric index       | ```const firstId = keyedList.getIdByIndex(list, 0);```                                   |
 | ```getFirst```    | Gets the first element in the list                   | ```const first = keyedList.getFirst(list);```                                            |
 | ```getLast```     | Gets the last elemenet in the list                   | ```const last = keyedList.getLast(list);```                                              |
 | ```getByIndex```  | Gets the element by its index                        | ```const second = keyedList.getByIndex(list, 1);```                                      |
